@@ -13,16 +13,35 @@ class BuildExt(build_ext):
         
         if self.compiler.compiler_type == 'msvc':  # Windows
             opts += ['/openmp', '/O2', '/std:c++17']
-            link_opts += ['/DEFAULTLIB:vcomp.lib']
-        else:  # Linux / macOS (GCC oder Clang)
-            opts += ['-fopenmp', '-O3', '-std=c++17']
-            link_opts += ['-fopenmp']
+        else:  # Linux / macOS
+            opts += ['-O3', '-std=c++17']
+            
+            # macOS Spezialbehandlung für OpenMP
+            if sys.platform == "darwin":
+                # Versuche die Pfade von Homebrew libomp zu finden
+                # Diese Pfade sind Standard für Intel und Apple Silicon Macs
+                omp_prefix = "/opt/homebrew/opt/libomp" if os.path.exists("/opt/homebrew/opt/libomp") else "/usr/local/opt/libomp"
+                
+                if os.path.exists(omp_prefix):
+                    opts += ['-Xpreprocessor', '-fopenmp', f'-I{omp_prefix}/include']
+                    link_opts += [f'-L{omp_prefix}/lib', '-lomp']
+                else:
+                    # Fallback ohne OpenMP, falls libomp fehlt (verhindert Crash)
+                    print("Warning: libomp not found, building without OpenMP")
+            else:
+                # Standard Linux (GCC)
+                opts += ['-fopenmp']
+                link_opts += ['-fopenmp']
         
         for ext in self.extensions:
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
-            ext.include_dirs.append(pybind11.get_include())
-            ext.include_dirs.append(np.get_include())
+            # Wichtig: Include Dirs hier hinzufügen
+            ext.include_dirs = [
+                pybind11.get_include(),
+                np.get_include(),
+                "src"
+            ]
             
         super().build_extensions()
 
@@ -38,13 +57,6 @@ ext_modules = [
 ]
 
 setup(
-    name="tmm_faster",
     ext_modules=ext_modules,
     cmdclass={'build_ext': BuildExt},
-    packages=["tmm_faster"],
-    package_data={
-        "tmm_faster": ["*.pyi"],
-    },
-    include_package_data=True,
-    zip_safe=False
 )
