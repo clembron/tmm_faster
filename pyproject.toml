@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tmm_faster"
-version = "0.1.2"
+version = "0.1.3"
 description = "A lightweight Python library with a C++ core for very fast calculations of reflection and transmission spectra in optical thin-film systems using the transfer-matrix method."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=2.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/clembron/tmm_faster"
 
 [tool.setuptools.packages.find]
 include = ["tmm_faster*"]
