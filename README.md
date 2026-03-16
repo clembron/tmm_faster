@@ -61,7 +61,7 @@ res_coherent = tmm_faster.calc_coherent(n_array, d, angles, wavelengths)
 
 <a name="fig1"></a>
 ![System Illustration](examples/example.png)
-<sub>**Figure 1**: Reflection spectra ($s$ polarization) for an example stack with only coherent layers (left) and the same stack but with the thickest layer in the middle being treated as incoherent (right).*
+*Figure 1: Reflection spectra ($s$ polarization) for an example stack with only coherent layers (left) and the same stack but with the thickest layer in the middle being treated as incoherent (right).*
 
 ## References
 
