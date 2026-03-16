@@ -14,10 +14,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Stand 2026: ubuntu-24.04 ist stabil für cibuildwheel 3.x
+        os: [ubuntu-24.04, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==3.4.0
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.0
@@ -28,17 +40,26 @@ jobs:
             LDFLAGS="-L$(brew --prefix libomp)/lib" 
             CPPFLAGS="-I$(brew --prefix libomp)/include"
           
-          # --- Allgemeines Setup ---
-          CIBW_SKIP: cp36-* cp37-* pp* # Überspringe veraltete Python-Versionen
+          # --- Build-Strategie & Stabilität ---
+          CIBW_BUILD_FRONTEND: "build"
+          CIBW_RETRY_DELAY: 15         # Mehr Puffer für Netzwerk-Limits (429 Error)
+          CIBW_RETRY_COUNT: 3
+          
+          # --- Versionen einschränken (Anpassbar) ---
+          # Wir überspringen alte Versionen und PyPy für C++ Extensions
+          CIBW_SKIP: cp36-* cp37-* cp38-* cp39-* pp*
+          
+          # Zeige Compiler-Output für einfacheres Debugging
           CIBW_BUILD_VERBOSITY: 1
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
   make_sdist:
-    name: Make source distribution
+    name: Create source distribution
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,15 +73,17 @@ jobs:
   upload_pypi:
     needs: [build_wheels, make_sdist]
     runs-on: ubuntu-latest
+    # Nur hochladen, wenn ein Tag v* gepusht wurde
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     permissions:
-      id-token: write  # Zwingend erforderlich für Trusted Publishing
+      id-token: write  # Erforderlich für OIDC / Trusted Publishing
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
           pattern: cibw-*
           path: dist
           merge-multiple: true
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@release/v1.12
