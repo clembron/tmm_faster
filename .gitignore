@@ -1,0 +1,7 @@
+.venv/*
+tmm_faster.egg-info/*
+tmm_faster/*.pyd
+*/__pycache__
+build/*
+__pycache__/*
+tests/*
