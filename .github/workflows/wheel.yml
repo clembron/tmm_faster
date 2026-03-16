@@ -12,9 +12,10 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45  # Gib den Buildern genug Zeit
     strategy:
+      fail-fast: false   # WICHTIG: Wenn Windows hängt, soll Linux trotzdem fertig bauen!
       matrix:
-        # Stand 2026: ubuntu-24.04 ist stabil für cibuildwheel 3.x
         os: [ubuntu-24.04, windows-latest, macos-latest]
 
     steps:
