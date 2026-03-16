@@ -35,10 +35,14 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.0
         env:
+          MACOSX_DEPLOYMENT_TARGET: "15.0"
+          
+          # --- Bestehende Mac-Konfiguration ---
           CIBW_BEFORE_BUILD_MACOS: brew install libomp
           CIBW_ENVIRONMENT_MACOS: >
             LDFLAGS="-L$(brew --prefix libomp)/lib" 
             CPPFLAGS="-I$(brew --prefix libomp)/include"
+            MACOSX_DEPLOYMENT_TARGET=15.0
           
           CIBW_BUILD_FRONTEND: "build"
           
