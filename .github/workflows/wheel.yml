@@ -34,22 +34,18 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.0
         env:
-          # --- Mac-Spezifisch: OpenMP Support ---
           CIBW_BEFORE_BUILD_MACOS: brew install libomp
           CIBW_ENVIRONMENT_MACOS: >
             LDFLAGS="-L$(brew --prefix libomp)/lib" 
             CPPFLAGS="-I$(brew --prefix libomp)/include"
           
-          # --- Build-Strategie & Stabilität ---
           CIBW_BUILD_FRONTEND: "build"
-          CIBW_RETRY_DELAY: 15         # Mehr Puffer für Netzwerk-Limits (429 Error)
+          
+          # NUR NOCH DAS HIER SKIPEPN (Version 3.x Standard)
+          CIBW_SKIP: cp38-* cp39-*
+          
+          CIBW_RETRY_DELAY: 20
           CIBW_RETRY_COUNT: 3
-          
-          # --- Versionen einschränken (Anpassbar) ---
-          # Wir überspringen alte Versionen und PyPy für C++ Extensions
-          CIBW_SKIP: cp36-* cp37-* cp38-* cp39-* pp*
-          
-          # Zeige Compiler-Output für einfacheres Debugging
           CIBW_BUILD_VERBOSITY: 1
 
       - name: Upload artifacts
