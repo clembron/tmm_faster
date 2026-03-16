@@ -87,13 +87,13 @@ PYBIND11_MODULE(tmm_faster_cpp, m) {
 
                     if (n_wl >= n_ang) {
                         #pragma omp parallel for schedule(static)
-                        for (int i = 0; i < n_wl; ++i) {
-                            for (int j = 0; j < n_ang; ++j) compute_tmm(i, j);
+                        for (size_t i = 0; i < n_wl; ++i) {
+                            for (size_t j = 0; j < n_ang; ++j) compute_tmm(i, j);
                         }
                     } else {
-                        for (int i = 0; i < n_wl; ++i) {
+                        for (size_t i = 0; i < n_wl; ++i) {
                             #pragma omp parallel for schedule(static)
-                            for (int j = 0; j < n_ang; ++j) compute_tmm(i, j);
+                            for (size_t j = 0; j < n_ang; ++j) compute_tmm(i, j);
                         }
                     }
                 }
@@ -156,13 +156,13 @@ PYBIND11_MODULE(tmm_faster_cpp, m) {
                     py::gil_scoped_release release;
                     if (n_wl >= n_ang) {
                         #pragma omp parallel for schedule(static)
-                        for (int i = 0; i < n_wl; ++i) {
-                            for (int j = 0; j < n_ang; ++j) compute_incoherent_tmm(i, j);
+                        for (size_t i = 0; i < n_wl; ++i) {
+                            for (size_t j = 0; j < n_ang; ++j) compute_incoherent_tmm(i, j);
                         }
                     } else {
-                        for (int i = 0; i < n_wl; ++i) {
+                        for (size_t i = 0; i < n_wl; ++i) {
                             #pragma omp parallel for schedule(static)
-                            for (int j = 0; j < n_ang; ++j) compute_incoherent_tmm(i, j);
+                            for (size_t j = 0; j < n_ang; ++j) compute_incoherent_tmm(i, j);
                         }
                     }
                 }
