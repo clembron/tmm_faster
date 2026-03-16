@@ -27,7 +27,7 @@
 
 ## Installation
 
-### With pip (Python 3.8+ required)
+### With pip (Python 3.10+ required)
 
 ```bash
 pip install tmm_faster
